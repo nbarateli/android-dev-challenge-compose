@@ -26,8 +26,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -51,12 +51,10 @@ import com.example.androiddevchallenge.ui.theme.MyTheme
 import com.example.androiddevchallenge.ui.viewmodel.PetStoreViewModel
 import com.example.androiddevchallenge.ui.viewmodel.PetStoreViewModelFactory
 
-
 class MainActivity : AppCompatActivity() {
     private val viewModel: PetStoreViewModel by viewModels { PetStoreViewModelFactory() }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
 
         setContent {
             MyTheme {
@@ -77,7 +75,6 @@ fun MyApp(viewModel: PetStoreViewModel) {
 
         Text(text = "Ready... Set... GO!")
         PetList(viewModel)
-
     }
 }
 
@@ -120,7 +117,6 @@ fun PetItem(pet: Pet, onClick: (Pet) -> Unit) {
                 alignment = Alignment.Center,
                 contentScale = ContentScale.Crop
             )
-
 
             Text(
                 text = "${pet.species.emoji} ${pet.name}, ${ageToString(pet.ageMonths)}",
