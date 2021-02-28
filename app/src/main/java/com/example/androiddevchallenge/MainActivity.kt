@@ -17,30 +17,113 @@ package com.example.androiddevchallenge
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.example.androiddevchallenge.ui.model.Pet
+import com.example.androiddevchallenge.ui.model.ageToString
 import com.example.androiddevchallenge.ui.theme.MyTheme
+import com.example.androiddevchallenge.ui.viewmodel.PetStoreViewModel
+import com.example.androiddevchallenge.ui.viewmodel.PetStoreViewModelFactory
+
 
 class MainActivity : AppCompatActivity() {
+    private val viewModel: PetStoreViewModel by viewModels { PetStoreViewModelFactory() }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
         setContent {
             MyTheme {
-                MyApp()
+                MyApp(viewModel)
             }
+        }
+
+        viewModel.petClickEvents.observeForever {
+            PetDetailActivity.start(it, this)
         }
     }
 }
 
 // Start building your app here!
 @Composable
-fun MyApp() {
-    Surface(color = MaterialTheme.colors.background) {
+fun MyApp(viewModel: PetStoreViewModel) {
+    Column {
+
         Text(text = "Ready... Set... GO!")
+        PetList(viewModel)
+
+    }
+}
+
+@Composable
+fun PetList(viewModel: PetStoreViewModel) {
+    val pets by viewModel.pets.observeAsState(emptyList())
+
+    LazyColumn(Modifier.fillMaxWidth()) {
+        items(pets) { pet ->
+            PetItem(pet = pet) {
+                viewModel.onPetClick(it)
+            }
+        }
+    }
+}
+
+@Composable
+fun PetItem(pet: Pet, onClick: (Pet) -> Unit) {
+
+    Card(
+
+        modifier = Modifier
+            .fillMaxWidth()
+
+            .clip(RoundedCornerShape(6.dp))
+            .padding(8.dp),
+        shape = MaterialTheme.shapes.large,
+    ) {
+
+        Row(Modifier.clickable { onClick(pet) }) {
+
+            Image(
+                painter = painterResource(id = pet.pictureId),
+                pet.name,
+                modifier = Modifier
+                    .size(128.dp)
+                    .requiredWidth(128.dp)
+                    .padding(5.dp)
+                    .clip(RoundedCornerShape(12.dp)),
+                alignment = Alignment.Center,
+                contentScale = ContentScale.Crop
+            )
+
+
+            Text(
+                text = "${pet.species.emoji} ${pet.name}, ${ageToString(pet.ageMonths)}",
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .align(Alignment.CenterVertically),
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }
 
@@ -48,7 +131,7 @@ fun MyApp() {
 @Composable
 fun LightPreview() {
     MyTheme {
-        MyApp()
+        MyApp(PetStoreViewModel())
     }
 }
 
@@ -56,6 +139,6 @@ fun LightPreview() {
 @Composable
 fun DarkPreview() {
     MyTheme(darkTheme = true) {
-        MyApp()
+        MyApp(PetStoreViewModel())
     }
 }
